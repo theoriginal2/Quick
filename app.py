@@ -1,18 +1,23 @@
 import os
-from huggingface_hub import InferenceClient
+import requests
 
-client = InferenceClient(
-    api_key=os.environ["HF_TOKEN"],
-)
+API_URL = "https://router.huggingface.co/v1/chat/completions"
+headers = {
+    "Authorization": f"Bearer {os.environ['HF_TOKEN']}",
+}
 
-completion = client.chat.completions.create(
-    model="stephenlzc/Mistral-7B-v0.3-Chinese-Chat-uncensored:featherless-ai",
-    messages=[
+def query(payload):
+    response = requests.post(API_URL, headers=headers, json=payload)
+    return response.json()
+
+response = query({
+    "messages": [
         {
             "role": "user",
             "content": "What is the capital of France?"
         }
     ],
-)
+    "model": "stephenlzc/Mistral-7B-v0.3-Chinese-Chat-uncensored:featherless-ai"
+})
 
-print(completion.choices[0].message)
+print(response["choices"][0]["message"])
